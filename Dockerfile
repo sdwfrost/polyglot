@@ -215,7 +215,7 @@ RUN conda install --quiet --yes \
 
 # Gnuplot
 RUN conda install --quiet --yes \
-    pip = 18.0 \
+    pip=18.0 \
     gnuplot=5.0.4 \
     -c conda-forge && \
     conda clean -tipsy && \
