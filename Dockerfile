@@ -257,7 +257,7 @@ RUN pip install cffi_magic
 ENV NIMBLE_DIR=/opt/nimble
 RUN curl https://nim-lang.org/choosenim/init.sh -sSf > choosenim.sh && \
     chmod +x ./choosenim.sh && \
-    ./choosenim.sh && \
+    ./choosenim.sh -y && \
     mkdir /opt/nimble && \
     mv /home/jovyan/.nimble/bin /opt/nimble
 ENV PATH=$NIMBLE_DIR/bin:$PATH
