@@ -213,13 +213,6 @@ RUN conda install --quiet --yes \
     fix-permissions $CONDA_DIR && \
     fix-permissions /home/$NB_USER
 
-# Scilab
-RUN apt-get install -yq --no-install-recommends \
-    scilab \
-    && apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-RUN pip install scilab_kernel
-
 # Add Julia packages.
 # Install IJulia as jovyan and then move the kernelspec out
 # to the system share location. Avoids problems with runtime UID change not
