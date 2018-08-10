@@ -190,9 +190,9 @@ RUN conda install --quiet --yes \
     'r-irkernel=0.8*' \
     'r-devtools=1.13*' \
     'r-rmarkdown=1.8*' && \
-    'r-desolve=1.2.0' && \
-    'r-ggplot2=3.0.3' && \
-    'r-plotly=4.7.1' && \
+    'r-desolve=*' && \
+    'r-ggplot2=*' && \
+    'r-plotly=*' && \
     conda clean -tipsy && \
     fix-permissions $CONDA_DIR && \
     fix-permissions /home/$NB_USER
