@@ -253,6 +253,16 @@ RUN pip install gnuplot_kernel && \
 # CFFI
 RUN pip install cffi_magic
 
+# Nim
+ENV NIMBLE_DIR=/opt/nimble
+RUN curl https://nim-lang.org/choosenim/init.sh -sSf > choosenim.sh && \
+    chmod +x ./choosenim.sh && \
+    ./choosenim.sh && \
+    mkdir /opt/nimble && \
+    mv /home/jovyan/.nimble/bin /opt/nimble
+ENV PATH=$NIMBLE_DIR/bin:$PATH
+RUN fix-permissions $NIMBLE_DIR
+
 # Make sure the contents of our repo are in ${HOME}
 COPY . ${HOME}
 RUN chown -R ${NB_UID} ${HOME}
