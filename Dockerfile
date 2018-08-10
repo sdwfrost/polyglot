@@ -213,17 +213,6 @@ RUN conda install --quiet --yes \
     fix-permissions $CONDA_DIR && \
     fix-permissions /home/$NB_USER
 
-# Gnuplot
-RUN conda install --quiet --yes \
-    pip=18.0 \
-    gnuplot=5.0.4 \
-    -c conda-forge && \
-    conda clean -tipsy && \
-    fix-permissions $CONDA_DIR && \
-    fix-permissions /home/$NB_USER
-RUN pip install gnuplot_kernel
-RUN python -m gnuplot_kernel install
-
 # Scilab
 RUN apt-get install -yq --no-install-recommends \
     scilab \
