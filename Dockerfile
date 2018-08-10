@@ -221,8 +221,20 @@ RUN julia -e 'Pkg.init()' && \
     julia -e 'Pkg.update()' && \
     julia -e 'Pkg.add("Gadfly")' && \
     julia -e 'Pkg.add("IJulia")' && \
+    julia -e 'Pkg.add("DifferentialEquations")' && \
+    julia -e 'Pkg.add("RandomNumbers")' && \
+    julia -e 'Pkg.add("Gillespie")' && \
+    julia -e 'Pkg.add("PyCall")' && \
+    julia -e 'Pkg.add("PyPlot")' && \
+    julia -e 'Pkg.add("PlotlyJS")' && \
     # Precompile Julia packages \
+    julia -e 'using Gadfly' && \
     julia -e 'using IJulia' && \
+    julia -e 'using DifferentialEquations' && \
+    julia -e 'using RandomNumbers' && \
+    julia -e 'using Gillespie' && \
+    julia -e 'using PyCall' && \
+    julia -e 'using PyPlot' && \
     # move kernelspec out of home \
     mv $HOME/.local/share/jupyter/kernels/julia* $CONDA_DIR/share/jupyter/kernels/ && \
     chmod -R go+rx $CONDA_DIR/share/jupyter && \
