@@ -246,6 +246,13 @@ RUN julia -e 'Pkg.init()' && \
     rm -rf $HOME/.local && \
     fix-permissions $JULIA_PKGDIR $CONDA_DIR/share/jupyter
 
+# Add gnuplot kernel - gnuplot 5.2.3 already installed above
+RUN pip install gnuplot_kernel && \
+    python -m gnuplot_kernel install
+
+# CFFI
+RUN pip install cffi_magic
+
 # Make sure the contents of our repo are in ${HOME}
 COPY . ${HOME}
 RUN chown -R ${NB_UID} ${HOME}
