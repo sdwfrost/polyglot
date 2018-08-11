@@ -289,10 +289,10 @@ RUN mkdir /opt/xppaut && \
 # VFGEN
 # First needs MiniXML
 RUN cd /tmp && \
-    mkdir mxml && \
+    mkdir /tmp/mxml && \
     wget https://github.com/michaelrsweet/mxml/releases/download/v2.11/mxml-2.11.tar.gz && \
-    tar xvf mxml-2.11.tar.gz -C /tmp/mxml --strip-components=1 && \
-    cd mxml && \
+    tar xvf mxml-2.11.tar.gz -C /tmp/mxml && \
+    cd /tmp/mxml && \
     ./configure && \
     make && \
     make install && \
