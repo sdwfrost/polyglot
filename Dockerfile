@@ -20,10 +20,13 @@ RUN apt-get update && apt-get -yq dist-upgrade\
     gfortran \
     git \
     gzip \
+    libcln-dev \
+    libginac-dev \
     libsm6 \
     libxext-dev \
     libxrender1 \
     lmodern \
+    maxima \
     netcat \
     pandoc \
     python-dev \
@@ -282,6 +285,30 @@ RUN mkdir /opt/xppaut && \
     tar xvf xpplinux.tgz -C /opt/xppaut --strip-components=1 && \
     rm /tmp/xpplinux.tgz && \
     ln -fs /opt/xppaut/xppaut /usr/local/bin/xppaut
+
+# VFGEN
+# First needs MiniXML
+RUN cd /tmp && \
+    mkdir mxml && \
+    wget https://github.com/michaelrsweet/mxml/releases/download/v2.11/mxml-2.11.tar.gz && \
+    tar xvf mxml-2.11.tar.gz -C /tmp/mxml --strip-components=1 && \
+    cd mxml && \
+    ./configure && \
+    make && \
+    make install && \
+    cd /tmp && \
+    rm mxml-2.11.tar.gz && \
+    rm -f mxml
+
+RUN mkdir /opt/vfgen && \
+    cd /tmp && \
+    git clone --branch c54fc99 https://github.com/WarrenWeckesser/vfgen && \
+    cd vfgen/src && \
+    make -f Makefile.vfgen && \
+    cp ./vfgen /opt/vfgen && \
+    cd /tmp && \
+    rm -rf vfgen && \
+    ln -fs /opt/vfgen/vfgen /usr/local/bin/vfgen
 
 # Make sure the contents of our repo are in ${HOME}
 COPY . ${HOME}
