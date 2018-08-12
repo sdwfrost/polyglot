@@ -303,7 +303,7 @@ RUN cd /tmp && \
 
 RUN mkdir /opt/vfgen && \
     cd /tmp && \
-    git clone --branch c54fc99 https://github.com/WarrenWeckesser/vfgen && \
+    git clone https://github.com/WarrenWeckesser/vfgen && \
     cd vfgen/src && \
     make -f Makefile.vfgen && \
     cp ./vfgen /opt/vfgen && \
