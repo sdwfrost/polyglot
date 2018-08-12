@@ -39,6 +39,7 @@ RUN apt-get update && apt-get -yq dist-upgrade\
     texlive-xetex \
     tzdata \
     unzip \
+    zlib1g-dev \
     && apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
