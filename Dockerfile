@@ -299,7 +299,7 @@ RUN cd /tmp && \
     make install && \
     cd /tmp && \
     rm mxml-2.11.tar.gz && \
-    rm -f mxml
+    rm -rf /tmp/mxml
 
 RUN mkdir /opt/vfgen && \
     cd /tmp && \
