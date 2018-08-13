@@ -18,12 +18,12 @@ RUN apt-get update && apt-get -yq dist-upgrade\
     fonts-dejavu \
     gcc \
     gfortran \
-    ginac \
     ginac-tools \
     git \
     gzip \
     libcln-dev \
     libginac-dev \
+    libginac6 \
     libsm6 \
     libxext-dev \
     libxrender1 \
