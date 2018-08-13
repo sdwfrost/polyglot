@@ -303,15 +303,15 @@ RUN cd /tmp && \
     rm mxml-2.11.tar.gz && \
     rm -rf /tmp/mxml
 
-RUN mkdir /opt/vfgen && \
-    cd /tmp && \
-    git clone https://github.com/WarrenWeckesser/vfgen && \
-    cd vfgen/src && \
-    make -f Makefile.vfgen && \
-    cp ./vfgen /opt/vfgen && \
-    cd /tmp && \
-    rm -rf vfgen && \
-    ln -fs /opt/vfgen/vfgen /usr/local/bin/vfgen
+# RUN mkdir /opt/vfgen && \
+#    cd /tmp && \
+#    git clone https://github.com/WarrenWeckesser/vfgen && \
+#    cd vfgen/src && \
+#    make -f Makefile.vfgen && \
+#    cp ./vfgen /opt/vfgen && \
+#    cd /tmp && \
+#    rm -rf vfgen && \
+#    ln -fs /opt/vfgen/vfgen /usr/local/bin/vfgen
 
 # Make sure the contents of our repo are in ${HOME}
 COPY . ${HOME}
