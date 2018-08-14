@@ -191,7 +191,7 @@ RUN mkdir /etc/julia && \
 
 # R packages including IRKernel which gets installed globally.
 RUN conda install --quiet --yes \
-    'rpy2=2.8*' \
+    'rpy2=2.9*' \
     'r-base=3.5.0' \
     'r-irkernel=0.8*' \
     'r-ggplot2=3.0.0' \
