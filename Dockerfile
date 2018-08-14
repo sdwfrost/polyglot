@@ -192,17 +192,35 @@ RUN mkdir /etc/julia && \
 # R packages including IRKernel which gets installed globally.
 RUN conda install --quiet --yes \
     'rpy2=2.8*' \
-    'r-base=3.4.1' \
+    'r-base=3.5.0' \
     'r-irkernel=0.8*' \
-    'r-devtools=1.13*' \
-    'r-rmarkdown=1.8*' \
     'r-ggplot2=3.0.0' \
     'r-plotly=4.7.1' \
     -c conda-forge && \
     conda clean -tipsy && \
     fix-permissions $CONDA_DIR && \
     fix-permissions /home/$NB_USER
-RUN R -e "install.packages(c('pomp','simecol','GillespieSSA'), repos = 'http://cran.us.r-project.org')"
+
+RUN R -e "install.packages(c(\
+    'adaptivetau', \
+    'cOde', \
+    'deSolve',\
+    'devtools', \
+    'ddeSolve',\
+    'GillespieSSA', \
+    'ggplot2', \
+    'FME', \
+    'magrittr', \
+    'odeintr', \
+    'PBSddesolve', \
+    'pomp', \
+    'pracma', \
+    'ReacTran', \
+    'rmarkdown', \
+    'rodeo', \
+    'Rcpp', \
+    'rpgm', \
+    'simecol'), dependencies=TRUE, clean=TRUE, repos='https://cran.microsoft.com/snapshot/2018-08-01')"
 RUN R -e "devtools::install_github('mrc-ide/odin', upgrade = FALSE)"
 
 # Cling
