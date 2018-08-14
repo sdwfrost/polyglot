@@ -194,8 +194,6 @@ RUN conda install --quiet --yes \
     'rpy2=2.9*' \
     'r-base=3.5.0' \
     'r-irkernel=0.8*' \
-    'r-ggplot2=3.0.0' \
-    'r-plotly=4.7.1' \
     -c conda-forge && \
     conda clean -tipsy && \
     fix-permissions $CONDA_DIR && \
@@ -213,6 +211,7 @@ RUN R -e "install.packages(c(\
     'magrittr', \
     'odeintr', \
     'PBSddesolve', \
+    'plotly', \
     'pomp', \
     'pracma', \
     'ReacTran', \
