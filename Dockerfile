@@ -22,8 +22,10 @@ RUN apt-get update && apt-get -yq dist-upgrade\
     git \
     gzip \
     libcln-dev \
+    libgeos-dev \
     libginac-dev \
     libginac6 \
+    libgit2-dev \
     libsm6 \
     libxext-dev \
     libxrender1 \
