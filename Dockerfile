@@ -196,6 +196,7 @@ RUN conda install --quiet --yes \
     'rpy2=2.9*' \
     'r-base=3.5.0' \
     'r-irkernel=0.8*' \
+    'r-devtools=1.13*' \
     -c conda-forge && \
     conda clean -tipsy && \
     fix-permissions $CONDA_DIR && \
@@ -203,14 +204,15 @@ RUN conda install --quiet --yes \
 
 RUN R -e "install.packages(c(\
     'adaptivetau', \
+    'boot', \
     'cOde', \
     'deSolve',\
-    'devtools', \
     'ddeSolve',\
     'GillespieSSA', \
     'git2r', \
     'ggplot2', \
     'FME', \
+    'KernSmooth', \
     'magrittr', \
     'odeintr', \
     'PBSddesolve', \
@@ -222,8 +224,8 @@ RUN R -e "install.packages(c(\
     'rodeo', \
     'Rcpp', \
     'rpgm', \
-    'simecol'), dependencies=TRUE, clean=TRUE, repos='https://cran.microsoft.com/snapshot/2018-08-14')"
-RUN R -e "devtools::install_github('mrc-ide/odin', upgrade = FALSE)"
+    'simecol', \
+    'spatial'), dependencies=TRUE, clean=TRUE, repos='https://cran.microsoft.com/snapshot/2018-08-14')"
 
 # Cling
 RUN conda install --quiet --yes \
