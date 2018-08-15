@@ -208,6 +208,7 @@ RUN R -e "install.packages(c(\
     'devtools', \
     'ddeSolve',\
     'GillespieSSA', \
+    'git2r', 
     'ggplot2', \
     'FME', \
     'magrittr', \
@@ -221,7 +222,7 @@ RUN R -e "install.packages(c(\
     'rodeo', \
     'Rcpp', \
     'rpgm', \
-    'simecol'), dependencies=TRUE, clean=TRUE, repos='https://cran.microsoft.com/snapshot/2018-08-01')"
+    'simecol'), dependencies=TRUE, clean=TRUE, repos='https://cran.microsoft.com/snapshot/2018-08-14')"
 RUN R -e "devtools::install_github('mrc-ide/odin', upgrade = FALSE)"
 
 # Cling
