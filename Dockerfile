@@ -208,7 +208,7 @@ RUN R -e "install.packages(c(\
     'devtools', \
     'ddeSolve',\
     'GillespieSSA', \
-    'git2r', 
+    'git2r', \
     'ggplot2', \
     'FME', \
     'magrittr', \
