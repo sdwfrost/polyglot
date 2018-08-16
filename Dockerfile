@@ -99,7 +99,7 @@ RUN cd /tmp && \
     fix-permissions /home/$NB_USER
 
 # Install Tini
-RUN conda install --quiet --yes 'tini=0.18.0' && \
+RUN conda install --quiet --yes 'tini' && \
     conda list tini | grep tini | tr -s ' ' | cut -d ' ' -f 1,2 >> $CONDA_DIR/conda-meta/pinned && \
     conda clean -tipsy && \
     fix-permissions $CONDA_DIR && \
@@ -112,11 +112,11 @@ RUN conda install --quiet --yes 'tini=0.18.0' && \
 # Do all this in a single RUN command to avoid duplicating all of the
 # files across image layers when the permissions change
 RUN conda install --quiet --yes \
-    'notebook=5.6.*' \
-    'jupyterhub=0.8.*' \
-    'jupyterlab=0.32.*' && \
+    'notebook' \
+    'jupyterhub' \
+    'jupyterlab' && \
     conda clean -tipsy && \
-    jupyter labextension install @jupyterlab/hub-extension@^0.8.1 && \
+    jupyter labextension install @jupyterlab/hub-extension && \
     npm cache clean --force && \
     jupyter notebook --generate-config && \
     rm -rf $CONDA_DIR/share/jupyter/lab/staging && \
@@ -133,14 +133,14 @@ ENTRYPOINT ["tini", "-g", "--"]
 RUN conda install --quiet --yes \
     'pip==9.0.3' \
     'conda-forge::blas=*=openblas' \
-    'ipywidgets=7.2*' \
-    'pandas=0.23*' \
-    'numexpr=2.6*' \
-    'matplotlib=2.2*' \
-    'scipy=1.1*' \
-    'seaborn=0.9*' \
-    'cython=0.28*' \
-    'numba=0.38*'  && \
+    'ipywidgets' \
+    'pandas=' \
+    'numexpr' \
+    'matplotlib=' \
+    'scipy' \
+    'seaborn' \
+    'cython' \
+    'numba'  && \
     conda remove --quiet --yes --force qt pyqt && \
     conda clean -tipsy && \
     # Activate ipywidgets extension in the environment that runs the notebook server
@@ -193,9 +193,9 @@ RUN mkdir /etc/julia && \
 
 # R packages including IRKernel which gets installed globally.
 RUN conda install --quiet --yes \
-    'rpy2=2.9*' \
-    'r-base=3.5.0' \
-    'r-irkernel=0.8*' \
+    'rpy2' \
+    'r-base' \
+    'r-irkernel' \
     -c conda-forge && \
     conda clean -tipsy && \
     fix-permissions $CONDA_DIR && \
@@ -238,8 +238,8 @@ RUN conda install -v --quiet --yes \
 
 # Octave
 RUN conda install --quiet --yes \
-    octave=4.2.1 \
-    octave_kernel=0.28.4 \
+    octave \
+    octave_kernel \
     -c conda-forge && \
     conda clean -tipsy && \
     fix-permissions $CONDA_DIR && \
