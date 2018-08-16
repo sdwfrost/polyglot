@@ -228,9 +228,9 @@ RUN R -e "install.packages(c(\
 
 # Cling
 RUN conda install -v --quiet --yes \
-    xeus-cling=0.4.5 \
-    xtensor=0.16.4 \
-    xtensor-blas=0.11.1 \
+    xeus-cling \
+    xtensor \
+    xtensor-blas \
     -c QuantStack && \
     conda clean -tipsy && \
     fix-permissions $CONDA_DIR && \
