@@ -195,6 +195,7 @@ RUN mkdir /etc/julia && \
 RUN conda install --quiet --yes \
     'rpy2' \
     'r-base' \
+    'r-devtools' \
     'r-irkernel' \
     -c conda-forge && \
     conda clean -tipsy && \
