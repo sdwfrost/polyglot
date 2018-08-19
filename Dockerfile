@@ -32,10 +32,10 @@ RUN apt-get update && apt-get -yq dist-upgrade\
     libxrender1 \
     libzmqpp-dev \
     lmodern \
-    maxima \
     netcat \
     pandoc \
     python-dev \
+    sbcl \
     software-properties-common \
     texlive-fonts-extra \
     texlive-fonts-recommended \
