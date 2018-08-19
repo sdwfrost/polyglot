@@ -312,8 +312,8 @@ RUN mkdir /opt/scilab-${SCILAB_VERSION} && \
     pip install scilab_kernel
 
 # ijs
-RUN npm install -g ijavascript && \
-    ijsinstall
+# RUN npm install -g ijavascript && \
+#    ijsinstall
 
 # XPP
 RUN mkdir /opt/xppaut && \
