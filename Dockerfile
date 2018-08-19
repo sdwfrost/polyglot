@@ -171,7 +171,7 @@ RUN MPLBACKEND=Agg python -c "import matplotlib.pyplot" && \
     fix-permissions /home/$NB_USER
 
 # Other Python
-RUN pip install papermill nteract_on_jupyter pygom
+RUN pip install papermill nteract_on_jupyter pixiedust
 
 # Julia dependencies
 # install Julia packages in /opt/julia instead of $HOME
