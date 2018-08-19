@@ -26,9 +26,11 @@ RUN apt-get update && apt-get -yq dist-upgrade\
     libginac-dev \
     libginac6 \
     libgit2-dev \
+    libjsoncpp-dev \
     libsm6 \
     libxext-dev \
     libxrender1 \
+    libzmqpp-dev \
     lmodern \
     maxima \
     netcat \
@@ -138,6 +140,7 @@ RUN conda install --quiet --yes \
     'numexpr' \
     'matplotlib=' \
     'scipy' \
+    'sympy' \
     'seaborn' \
     'cython' \
     'numba'  && \
