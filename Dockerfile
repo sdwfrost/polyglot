@@ -170,6 +170,9 @@ ENV XDG_CACHE_HOME /home/$NB_USER/.cache/
 RUN MPLBACKEND=Agg python -c "import matplotlib.pyplot" && \
     fix-permissions /home/$NB_USER
 
+# Other Python
+RUN pip install papermill nteract_on_jupyter pygom
+
 # Julia dependencies
 # install Julia packages in /opt/julia instead of $HOME
 ENV JULIA_PKGDIR=/opt/julia
@@ -226,6 +229,8 @@ RUN R -e "install.packages(c(\
     'rpgm', \
     'simecol', \
     'spatial'), dependencies=TRUE, clean=TRUE, repos='https://cran.microsoft.com/snapshot/2018-08-14')"
+# GitHub pkgs
+RUN R -e "devtools::install_github('mrc-ide/odin',upgrade = FALSE)"
 
 # Cling
 RUN conda install -v --quiet --yes \
@@ -302,6 +307,10 @@ RUN mkdir /opt/scilab-${SCILAB_VERSION} && \
     ln -fs /opt/scilab-${SCILAB_VERSION}/bin/scilab-adv-cli /usr/local/bin/scilab-adv-cli && \
     ln -fs /opt/scilab-${SCILAB_VERSION}/bin/scilab-cli /usr/local/bin/scilab-cli && \
     pip install scilab_kernel
+
+# ijs
+RUN npm install -g ijavascript && \
+    ijsinstall
 
 # XPP
 RUN mkdir /opt/xppaut && \
