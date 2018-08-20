@@ -21,7 +21,6 @@ RUN apt-get update && apt-get -yq dist-upgrade\
     ghostscript \
     ginac-tools \
     git \
-    gs-esp \
     gzip \
     libboost-all-dev \
     libcln-dev \
