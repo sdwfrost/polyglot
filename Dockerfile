@@ -321,12 +321,14 @@ RUN mkdir /opt/scilab-${SCILAB_VERSION} && \
 #    ijsinstall
 
 # XPP
+ENV XPP_DIR=/opt/xppaut
 RUN mkdir /opt/xppaut && \
     cd /tmp && \
     wget http://www.math.pitt.edu/~bard/bardware/binary/latest/xpplinux.tgz && \
     tar xvf xpplinux.tgz -C /opt/xppaut --strip-components=1 && \
-    rm /tmp/xpplinux.tgz && \
-    ln -fs /opt/xppaut/xppaut /usr/local/bin/xppaut
+    rm /tmp/xpplinux.tgz
+ENV PATH=${XPP_DIR}:$PATH
+RUN fix-permissions $XPP_DIR
 
 # VFGEN
 # First needs MiniXML
