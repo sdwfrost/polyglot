@@ -18,14 +18,18 @@ RUN apt-get update && apt-get -yq dist-upgrade\
     fonts-dejavu \
     gcc \
     gfortran \
+    ghostscript \
     ginac-tools \
     git \
+    gs-esp \
     gzip \
+    libboost-all-dev \
     libcln-dev \
     libgeos-dev \
     libginac-dev \
     libginac6 \
     libgit2-dev \
+    libgs-dev \
     libjsoncpp-dev \
     libsm6 \
     libxext-dev \
@@ -262,6 +266,7 @@ RUN conda install --quiet --yes \
 RUN julia -e 'Pkg.init()' && \
     julia -e 'Pkg.update()' && \
     julia -e 'Pkg.add("Gadfly")' && \
+    julia -e 'Pkg.add("Plots")' && \
     julia -e 'Pkg.add("IJulia")' && \
     julia -e 'Pkg.add("DifferentialEquations")' && \
     julia -e 'Pkg.add("RandomNumbers")' && \
