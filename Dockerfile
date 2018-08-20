@@ -34,6 +34,7 @@ RUN apt-get update && apt-get -yq dist-upgrade\
     lmodern \
     netcat \
     pandoc \
+    pkg-config \
     python-dev \
     sbcl \
     software-properties-common \
