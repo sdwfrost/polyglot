@@ -204,7 +204,7 @@ RUN mkdir /etc/julia && \
 # R packages including IRKernel which gets installed globally.
 RUN conda install --quiet --yes \
     'rpy2' \
-    'r-base' \
+    'r-base=3.4.3' \
     'r-devtools' \
     'r-irkernel' \
     -c conda-forge && \
@@ -275,6 +275,7 @@ RUN julia -e 'Pkg.init()' && \
     julia -e 'Pkg.add("PlotlyJS")' && \
     # Precompile Julia packages \
     julia -e 'using Gadfly' && \
+    julia -e 'using Plots' &&
     julia -e 'using IJulia' && \
     julia -e 'using DifferentialEquations' && \
     julia -e 'using RandomNumbers' && \
@@ -326,6 +327,8 @@ RUN mkdir /opt/xppaut && \
     cd /tmp && \
     wget http://www.math.pitt.edu/~bard/bardware/binary/latest/xpplinux.tgz && \
     tar xvf xpplinux.tgz -C /opt/xppaut --strip-components=1 && \
+    cd /opt/xppaut && \
+    chmod +x /opt/xppaut/xppaut && \
     rm /tmp/xpplinux.tgz
 ENV PATH=${XPP_DIR}:$PATH
 RUN fix-permissions $XPP_DIR
