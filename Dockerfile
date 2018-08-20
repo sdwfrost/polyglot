@@ -275,7 +275,7 @@ RUN julia -e 'Pkg.init()' && \
     julia -e 'Pkg.add("PlotlyJS")' && \
     # Precompile Julia packages \
     julia -e 'using Gadfly' && \
-    julia -e 'using Plots' &&
+    julia -e 'using Plots' && \
     julia -e 'using IJulia' && \
     julia -e 'using DifferentialEquations' && \
     julia -e 'using RandomNumbers' && \
