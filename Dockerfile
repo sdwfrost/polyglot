@@ -118,9 +118,11 @@ RUN conda install --quiet --yes 'tini' && \
 # Do all this in a single RUN command to avoid duplicating all of the
 # files across image layers when the permissions change
 RUN conda install --quiet --yes \
+    'gnuplot' \
     'notebook' \
     'jupyterhub' \
-    'jupyterlab' && \
+    'jupyterlab' \
+    -c conda-forge && \
     conda clean -tipsy && \
     jupyter labextension install @jupyterlab/hub-extension && \
     npm cache clean --force && \
@@ -204,7 +206,7 @@ RUN mkdir /etc/julia && \
 # R packages including IRKernel which gets installed globally.
 RUN conda install --quiet --yes \
     'rpy2' \
-    'r-base=3.4.3' \
+    'r-base' \
     'r-devtools' \
     'r-irkernel' \
     -c conda-forge && \
