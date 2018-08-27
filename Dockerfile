@@ -392,6 +392,36 @@ RUN cd /opt && \
 #    cd /tmp && \
 #    rm -rf beakerx
 
+# Libbi
+RUN apt-get update && apt-get -yq dist-upgrade && \
+    apt-get install -yq --no-install-recommends \
+    libblas-dev \
+    liblapack-dev \
+    libqrupdate-dev \
+    libgsl0-dev \
+    libnetcdf-dev \
+    autoconf \
+    automake && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* 
+RUN cd /tmp && \
+    wget https://github.com/thrust/thrust/releases/download/1.8.2/thrust-1.8.2.zip && \
+    unzip thrust-1.8.2.zip && \
+    mv thrust /usr/local/include && \
+    rm thrust-1.8.2.zip && \
+    fix-permissions /usr/local/include
+RUN cd /tmp && \
+    git clone https://github.com/lawmurray/LibBi && \
+    cd LibBi && \
+    PERL_MM_USE_DEFAULT=1  perl -MCPAN -e 'install Template Graph Math::Symbolic Carp::Assert Parse::Yapp Parse::Lex File::Slurp File::ShareDir Getopt::ArgvFile' && \
+    perl Makefile.PL && \
+    make && \
+    make test && \
+    make install && \
+    cd /tmp && \
+    rm -rf LibBi
+RUN R -e "devtools::install_github('sbfnk/RBi')"
+
 # Lua
 RUN cd /opt && \
     wget http://ulua.io/download/ulua~latest.zip && \
