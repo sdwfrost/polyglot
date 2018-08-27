@@ -9,18 +9,25 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update && apt-get -yq dist-upgrade\
     && apt-get install -yq --no-install-recommends \
     wget \
+    ant \
     bzip2 \
     ca-certificates \
+    cmake \
+    curl \
     sudo \
     locales \
     fonts-liberation \
     build-essential \
+    default-jdk \
+    default-jre \
     fonts-dejavu \
     gcc \
     gfortran \
     ghostscript \
     ginac-tools \
     git \
+    gnuplot \
+    gnupg-agent \
     gzip \
     libboost-all-dev \
     libcln-dev \
@@ -28,17 +35,21 @@ RUN apt-get update && apt-get -yq dist-upgrade\
     libginac-dev \
     libginac6 \
     libgit2-dev \
+    libgl1-mesa-glx \
     libgs-dev \
     libjsoncpp-dev \
+    libqt5widgets5 \
     libsm6 \
     libxext-dev \
     libxrender1 \
+    libxt6 \
     libzmqpp-dev \
     lmodern \
     netcat \
     pandoc \
     pkg-config \
-    python-dev \
+    python3-dev \
+    rsync \
     sbcl \
     software-properties-common \
     texlive-fonts-extra \
@@ -53,22 +64,27 @@ RUN apt-get update && apt-get -yq dist-upgrade\
     && apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
+RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
+    apt-get install -yq --no-install-recommends \
+    nodejs \
+    nodejs-legacy \
+    && apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
 RUN ln -s /bin/tar /bin/gtar
 
 RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
     locale-gen
 
 # Configure environment
-ENV CONDA_DIR=/opt/conda \
-    SHELL=/bin/bash \
+ENV SHELL=/bin/bash \
     NB_USER=jovyan \
     NB_UID=1000 \
     NB_GID=100 \
     LC_ALL=en_US.UTF-8 \
     LANG=en_US.UTF-8 \
     LANGUAGE=en_US.UTF-8
-ENV PATH=$CONDA_DIR/bin:$PATH \
-    HOME=/home/$NB_USER
+ENV HOME=/home/$NB_USER
 
 ADD fix-permissions /usr/local/bin/fix-permissions
 RUN chmod +x /usr/local/bin/fix-permissions
@@ -78,90 +94,61 @@ RUN chmod +x /usr/local/bin/fix-permissions
 RUN groupadd wheel -g 11 && \
     echo "auth required pam_wheel.so use_uid" >> /etc/pam.d/su && \
     useradd -m -s /bin/bash -N -u $NB_UID $NB_USER && \
-    mkdir -p $CONDA_DIR && \
-    chown $NB_USER:$NB_GID $CONDA_DIR && \
     chmod g+w /etc/passwd && \
-    fix-permissions $HOME && \
-    fix-permissions $CONDA_DIR
+    fix-permissions $HOME
 
 EXPOSE 8888
 WORKDIR $HOME
 
-# Install conda as jovyan and check the md5 sum provided on the download site
-ENV MINICONDA_VERSION 4.5.4
+# Install pip
 RUN cd /tmp && \
-    wget --quiet https://repo.continuum.io/miniconda/Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh && \
-    echo "a946ea1d0c4a642ddf0c3a26a18bb16d *Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh" | md5sum -c - && \
-    /bin/bash Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh -f -b -p $CONDA_DIR && \
-    rm Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh && \
-    $CONDA_DIR/bin/conda config --system --prepend channels conda-forge && \
-    $CONDA_DIR/bin/conda config --system --set auto_update_conda false && \
-    $CONDA_DIR/bin/conda config --system --set show_channel_urls true && \
-    $CONDA_DIR/bin/conda install --quiet --yes conda="${MINICONDA_VERSION%.*}.*" && \
-    $CONDA_DIR/bin/conda update --all --quiet --yes && \
-    conda clean -tipsy && \
-    rm -rf /home/$NB_USER/.cache/yarn && \
-    fix-permissions $CONDA_DIR && \
+    curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
+    python3 get-pip.py && \
+    rm get-pip.py && \
+    rm -rf /home/$NB_USER/.cache/pip && \
     fix-permissions /home/$NB_USER
 
 # Install Tini
-RUN conda install --quiet --yes 'tini' && \
-    conda list tini | grep tini | tr -s ' ' | cut -d ' ' -f 1,2 >> $CONDA_DIR/conda-meta/pinned && \
-    conda clean -tipsy && \
-    fix-permissions $CONDA_DIR && \
-    fix-permissions /home/$NB_USER
 
-# Install Jupyter Notebook, Lab, and Hub
-# Generate a notebook server config
-# Cleanup temporary files
-# Correct permissions
-# Do all this in a single RUN command to avoid duplicating all of the
-# files across image layers when the permissions change
-RUN conda install --quiet --yes \
-    'gnuplot' \
-    'notebook' \
-    'jupyterhub' \
-    'jupyterlab' \
-    -c conda-forge && \
-    conda clean -tipsy && \
-    jupyter labextension install @jupyterlab/hub-extension && \
-    npm cache clean --force && \
-    jupyter notebook --generate-config && \
-    rm -rf $CONDA_DIR/share/jupyter/lab/staging && \
-    rm -rf /home/$NB_USER/.cache/yarn && \
-    fix-permissions $CONDA_DIR && \
-    fix-permissions /home/$NB_USER
-
+ENV TINI_VERSION v0.18.0
+ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /usr/local/bin/tini
+RUN chmod +x /usr/local/bin/tini
+ENV PATH=/usr/local/bin:$PATH
 # Configure container startup
 ENTRYPOINT ["tini", "-g", "--"]
 
-# Install Python 3 packages
-# Remove pyqt and qt pulled in for matplotlib since we're only ever going to
-# use notebook-friendly backends in these images
-RUN conda install --quiet --yes \
-    'pip' \
-    'conda-forge::blas=*=openblas' \
-    'ipywidgets' \
-    'pandas=' \
-    'numexpr' \
-    'matplotlib=' \
-    'scipy' \
-    'sympy' \
-    'seaborn' \
-    'cython' \
-    'numba'  && \
-    conda remove --quiet --yes --force qt pyqt && \
-    conda clean -tipsy && \
+RUN pip install \
+    notebook \
+    jupyterhub \
+    jupyterlab && \
+    jupyter labextension install @jupyterlab/hub-extension && \
+    npm cache clean --force && \
+    jupyter notebook --generate-config && \
+    rm -rf /home/$NB_USER/.cache/pip && \
+    rm -rf /home/$NB_USER/.cache/yarn && \
+    fix-permissions /home/$NB_USER
+
+RUN pip install \
+    gr \
+    ipywidgets \
+    pandas \
+    numexpr \
+    matplotlib \
+    scipy \
+    sympy \
+    seaborn \
+    cython \
+    papermill \
+    nteract_on_jupyter \
+    numba  && \
     # Activate ipywidgets extension in the environment that runs the notebook server
     jupyter nbextension enable --py widgetsnbextension --sys-prefix && \
     # Also activate ipywidgets extension for JupyterLab
     jupyter labextension install @jupyter-widgets/jupyterlab-manager && \
     jupyter labextension install jupyterlab_bokeh && \
     npm cache clean --force && \
-    rm -rf $CONDA_DIR/share/jupyter/lab/staging && \
     rm -rf /home/$NB_USER/.cache/yarn && \
     rm -rf /home/$NB_USER/.node-gyp && \
-    fix-permissions $CONDA_DIR && \
     fix-permissions /home/$NB_USER
 
 # Install facets which does not have a pip or conda package at the moment
@@ -171,16 +158,12 @@ RUN cd /tmp && \
     jupyter nbextension install facets-dist/ --sys-prefix && \
     cd && \
     rm -rf /tmp/facets && \
-    fix-permissions $CONDA_DIR && \
     fix-permissions /home/$NB_USER
 
 # Import matplotlib the first time to build the font cache.
 ENV XDG_CACHE_HOME /home/$NB_USER/.cache/
-RUN MPLBACKEND=Agg python -c "import matplotlib.pyplot" && \
-    fix-permissions /home/$NB_USER
-
-# Other Python
-RUN pip install papermill nteract_on_jupyter pixiedust
+# RUN MPLBACKEND=Agg python -c "import matplotlib.pyplot" && \
+#    fix-permissions /home/$NB_USER
 
 # Julia dependencies
 # install Julia packages in /opt/julia instead of $HOME
@@ -195,30 +178,28 @@ RUN mkdir /opt/julia-${JULIA_VERSION} && \
     rm /tmp/julia-${JULIA_VERSION}-linux-x86_64.tar.gz
 RUN ln -fs /opt/julia-*/bin/julia /usr/local/bin/julia
 
-# Show Julia where conda libraries are \
+# Show Julia where libraries are \
 RUN mkdir /etc/julia && \
-    echo "push!(Libdl.DL_LOAD_PATH, \"$CONDA_DIR/lib\")" >> /etc/julia/juliarc.jl && \
     # Create JULIA_PKGDIR \
     mkdir $JULIA_PKGDIR && \
     chown $NB_USER $JULIA_PKGDIR && \
     fix-permissions $JULIA_PKGDIR
 
-# R packages including IRKernel which gets installed globally.
-RUN conda install --quiet --yes \
-    'rpy2' \
-    'r-base' \
-    'r-devtools' \
-    'r-irkernel' \
-    -c conda-forge && \
-    conda clean -tipsy && \
-    fix-permissions $CONDA_DIR && \
-    fix-permissions /home/$NB_USER
+RUN add-apt-repository ppa:marutter/rrutter && \
+    apt-get update && \
+    apt-get install -yq \
+    libssl-dev \
+    libcurl4-gnutls-dev \
+    r-base r-base-dev && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 RUN R -e "install.packages(c(\
     'adaptivetau', \
     'boot', \
     'cOde', \
     'deSolve',\
+    'devtools', \
     'ddeSolve',\
     'GillespieSSA', \
     'git2r', \
@@ -238,27 +219,14 @@ RUN R -e "install.packages(c(\
     'rpgm', \
     'simecol', \
     'spatial'), dependencies=TRUE, clean=TRUE, repos='https://cran.microsoft.com/snapshot/2018-08-14')"
-# GitHub pkgs
-RUN R -e "devtools::install_github('mrc-ide/odin',upgrade = FALSE)"
-
-# Cling
-RUN conda install -v --quiet --yes \
-    xeus-cling \
-    xtensor \
-    xtensor-blas \
-    -c QuantStack && \
-    conda clean -tipsy && \
-    fix-permissions $CONDA_DIR && \
-    fix-permissions /home/$NB_USER
-
-# Octave
-RUN conda install --quiet --yes \
-    octave \
-    octave_kernel \
-    -c conda-forge && \
-    conda clean -tipsy && \
-    fix-permissions $CONDA_DIR && \
-    fix-permissions /home/$NB_USER
+RUN R -e "devtools::install_github('IRkernel/IRkernel')" && \
+    R -e "IRkernel::installspec()" && \
+    mv $HOME/.local/share/jupyter/kernels/ir* /usr/local/share/jupyter/kernels/ && \
+    chmod -R go+rx /usr/local/share/jupyter && \
+    rm -rf $HOME/.local && \
+    fix-permissions /usr/local/share/jupyter
+RUN pip install rpy2
+RUN R -e "devtools::install_github('mrc-ide/odin',upgrade=FALSE)"
 
 # Add Julia packages.
 # Install IJulia as jovyan and then move the kernelspec out
@@ -267,6 +235,7 @@ RUN conda install --quiet --yes \
 RUN julia -e 'Pkg.init()' && \
     julia -e 'Pkg.update()' && \
     julia -e 'Pkg.add("Gadfly")' && \
+    julia -e 'Pkg.add("GR")' && \
     julia -e 'Pkg.add("Plots")' && \
     julia -e 'Pkg.add("IJulia")' && \
     julia -e 'Pkg.add("DifferentialEquations")' && \
@@ -277,6 +246,7 @@ RUN julia -e 'Pkg.init()' && \
     julia -e 'Pkg.add("PlotlyJS")' && \
     # Precompile Julia packages \
     julia -e 'using Gadfly' && \
+    julia -e 'using GR' && \
     julia -e 'using Plots' && \
     julia -e 'using IJulia' && \
     julia -e 'using DifferentialEquations' && \
@@ -285,17 +255,24 @@ RUN julia -e 'Pkg.init()' && \
     julia -e 'using PyCall' && \
     julia -e 'using PyPlot' && \
     # move kernelspec out of home \
-    mv $HOME/.local/share/jupyter/kernels/julia* $CONDA_DIR/share/jupyter/kernels/ && \
-    chmod -R go+rx $CONDA_DIR/share/jupyter && \
+    mv $HOME/.local/share/jupyter/kernels/julia* /usr/local/share/jupyter/kernels/ && \
+    chmod -R go+rx /usr/local/share/jupyter && \
     rm -rf $HOME/.local && \
-    fix-permissions $JULIA_PKGDIR $CONDA_DIR/share/jupyter
+    fix-permissions $JULIA_PKGDIR /usr/local/share/jupyter
 
 # Add gnuplot kernel - gnuplot 5.2.3 already installed above
 RUN pip install gnuplot_kernel && \
-    python -m gnuplot_kernel install
+    python3 -m gnuplot_kernel install
 
 # CFFI
 RUN pip install cffi_magic
+
+# GR
+RUN cd /tmp && \
+    wget https://gr-framework.org/downloads/gr-latest-Ubuntu-x86_64.tar.gz && \
+    tar xvf gr-latest-Ubuntu-x86_64.tar.gz -C /usr/local --strip-components=1 && \
+    rm gr-latest-Ubuntu-x86_64.tar.gz && \
+    fix-permissions /usr/local
 
 # Nim
 ENV NIMBLE_DIR=/opt/nimble
@@ -319,21 +296,24 @@ RUN mkdir /opt/scilab-${SCILAB_VERSION} && \
     ln -fs /opt/scilab-${SCILAB_VERSION}/bin/scilab-cli /usr/local/bin/scilab-cli && \
     pip install scilab_kernel
 
-# ijs
-# RUN npm install -g ijavascript && \
-#    ijsinstall
+RUN apt-get update && apt-get -yq dist-upgrade && \
+    apt-get install -yq --no-install-recommends \
+    octave && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*    
+RUN pip install octave_kernel
 
 # XPP
 ENV XPP_DIR=/opt/xppaut
 RUN mkdir /opt/xppaut && \
     cd /tmp && \
-    wget http://www.math.pitt.edu/~bard/bardware/binary/latest/xpplinux.tgz && \
-    tar xvf xpplinux.tgz -C /opt/xppaut --strip-components=1 && \
+    wget http://www.math.pitt.edu/~bard/bardware/xppaut_latest.tar.gz && \
+    tar xvf xppaut_latest.tar.gz -C /opt/xppaut && \
     cd /opt/xppaut && \
-    chmod +x /opt/xppaut/xppaut && \
-    rm /tmp/xpplinux.tgz
-ENV PATH=${XPP_DIR}:$PATH
-RUN fix-permissions $XPP_DIR
+    make && \
+    ln -fs /opt/xppaut/xppaut /usr/local/bin/xppaut && \
+    rm /tmp/xppaut_latest.tar.gz && \
+    fix-permissions $XPP_DIR /usr/local/bin
 
 # VFGEN
 # First needs MiniXML
@@ -348,18 +328,89 @@ RUN cd /tmp && \
     cd /tmp && \
     rm mxml-2.11.tar.gz && \
     rm -rf /tmp/mxml
+ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 
-# RUN mkdir /opt/vfgen && \
+RUN mkdir /opt/vfgen && \
+    cd /tmp && \
+    git clone https://github.com/WarrenWeckesser/vfgen && \
+    cd vfgen/src && \
+    make -f Makefile.vfgen && \
+    cp ./vfgen /opt/vfgen && \
+    cd /tmp && \
+    rm -rf vfgen && \
+    ln -fs /opt/vfgen/vfgen /usr/local/bin/vfgen
+
+# Maxima
+RUN cd /tmp && \
+    git clone https://github.com/andrejv/maxima && \
+    cd maxima && \
+    sh bootstrap && \
+    ./configure --enable-sbcl && \
+    make && \
+    make install && \
+    cd /tmp && \
+    rm -rf maxima
+RUN mkdir /opt/quicklisp && \
+    cd /tmp && \
+    curl -O https://beta.quicklisp.org/quicklisp.lisp && \
+    sbcl --load quicklisp.lisp --non-interactive --eval '(quicklisp-quickstart:install :path "/opt/quicklisp/")' && \
+    yes '' | sbcl --load /opt/quicklisp/setup.lisp --non-interactive --eval '(ql:add-to-init-file)' && \
+    rm quicklisp.lisp && \
+    fix-permissions /opt/quicklisp
+RUN cd /opt && \
+    git clone https://github.com/robert-dodier/maxima-jupyter && \
+    cd maxima-jupyter && \
+    python3 ./install-maxima-jupyter.py --root=/opt/maxima-jupyter && \
+    fix-permissions /opt/maxima-jupyter /usr/local/share/jupyter/kernels
+
+# JVM languages
+# RUN snap install --classic kotlin && \
+#    fix-permissions /snap
+#RUN cd /opt && \
+#    wget https://github.com/JetBrains/kotlin/releases/download/v1.2.61/kotlin-compiler-1.2.61.zip && \
+#    unzip kotlin-compiler-1.2.61.zip && \
+#    rm kotlin-compiler-1.2.61.zip && \
+#    cd /opt/kotlinc/bin && \
+#    chmod +x kotli* && \
+#    fix-permissions /opt/kotlinc
+#ENV PATH=/opt/kotlinc/bin:$PATH
+
+#RUN cd /tmp && \
+#    wget www.scala-lang.org/files/archive/scala-2.11.8.deb && \
+#    dpkg -i scala-2.11.8.deb && \
+#    rm scala-2.11.8.deb
+#RUN pip install beakerx && \
+#    beakerx install
+# RUN cd /tmp && \
+#    git clone https://github.com/twosigma/beakerx && \
+#    cd beakerx/beakerx && \
+#    pip install -e . --verbose && \
+#    beakerx install && \
+#    jupyter labextension install @jupyter-widgets/jupyterlab-manager && \
+#    cd /tmp/beakerx/js/lab && \
+#    jupyter labextension install . && \
 #    cd /tmp && \
-#    git clone https://github.com/WarrenWeckesser/vfgen && \
-#    cd vfgen/src && \
-#    make -f Makefile.vfgen && \
-#    cp ./vfgen /opt/vfgen && \
-#    cd /tmp && \
-#    rm -rf vfgen && \
-#    ln -fs /opt/vfgen/vfgen /usr/local/bin/vfgen
+#    rm -rf beakerx
+
+# Lua
+RUN cd /opt && \
+    wget http://ulua.io/download/ulua~latest.zip && \
+    unzip ulua~latest.zip && \
+    rm ulua~latest.zip && \
+    fix-permissions /opt/ulua
+ENV BIT=64 PATH=/opt/ulua:$PATH
+RUN cd /opt/ulua/bin && \
+    yes 'y' | ./upkg add sci && \
+    yes 'y' | ./upkg add sci-lang && \
+    fix-permissions /opt/ulua
 
 # Make sure the contents of our repo are in ${HOME}
 COPY . ${HOME}
 RUN chown -R ${NB_UID} ${HOME}
 USER ${NB_USER}
+
+RUN echo 'prefix=${HOME}/.npm' >> ${HOME}/.npmrc 
+ENV PATH=${HOME}/.npm/bin:$PATH
+RUN cd ${HOME} && \
+    npm install -g ijavascript && \
+    ijsinstall
